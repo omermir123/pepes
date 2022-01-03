@@ -64,8 +64,7 @@ public class Avatar extends GameObject {
     private static void createRenderWalkAnimation() {
         Renderable[] walking = new Renderable[NUM_OF_WALKING_IMG];
         for (int i = 0; i < walking.length; i++) {
-            walking[i] = imageReader.readImage(WALKING_ANIMATION_DIR + i +
-                    END_OF_IMG_DIR, true);
+            walking[i] = imageReader.readImage(WALKING_ANIMATION_DIR + i+ END_OF_IMG_DIR, true);
         }
         walkingAnimationRenderer = new AnimationRenderable(walking, TIME_BETWEEN_CLIPS);
     }

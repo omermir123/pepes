@@ -1,5 +1,6 @@
 package pepse.world.trees;
 
+import danogl.GameObject;
 import danogl.collisions.GameObjectCollection;
 import danogl.collisions.Layer;
 import danogl.gui.rendering.RectangleRenderable;
@@ -8,6 +9,8 @@ import pepse.world.Block;
 import pepse.world.Terrain;
 
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.function.Function;
@@ -29,6 +32,7 @@ public class Tree {
     private final int leafLayer;
     private int seed;
     private Random random;
+    private Map<Integer, SingleTree> treeMap = new HashMap<>();
 
     /**
      * A constructor to create a new Tree instance.
@@ -61,29 +65,14 @@ public class Tree {
         }
     }
 
-    /*
-    This function builds a complete tree (stump and leaves) in the startOfTree location.
-     */
-    private void buildTree(float x, float startOfTree) {
-        int treeHeight = MINIMAL_TREE_HEIGHT + random.nextInt(RANDOM_TREE_HEIGHT_BOND);
-        for (int i = 1; i <= treeHeight; i++) {
-            Block stump = new Block(new Vector2(x, startOfTree - Block.SIZE * i),
-                                                new RectangleRenderable(STUMP_COLOR));
-            gameObjects.addGameObject(stump, stumpLayer);
-            stump.setTag(STUMP_TAG);
-        }
-        Vector2 topLeftLeaf = new Vector2(x - 2 * Block.SIZE,
-                startOfTree - Block.SIZE * (treeHeight + 2));
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                Leaf leaf = new Leaf(new Vector2(topLeftLeaf.x() + Block.SIZE * j,
-                        topLeftLeaf.y() + Block.SIZE * i), gameObjects, leafLayer);
-                gameObjects.addGameObject(leaf, leafLayer);
-                leaf.setTag(LEAF_TAG);
-
+    public void deleteInRange(int minX, int maxX){
+        for (int i = minX; i < maxX; i += Block.SIZE){
+            if (treeMap.containsKey(i)) {
+                treeMap.get(i).removeTree();
             }
         }
-
     }
+
+
 
 }

@@ -65,40 +65,53 @@ public class PepseGameManager extends GameManager {
         seed = new Random().nextInt(RANDOM_SEED_BOUND);
         random = new Random(seed);
         createSky();
-
         leftRenderBorder = -RADIUS_FACTOR;
         rightRenderBorder = (int) Math.floor(windowDimensions.x() / Block.SIZE) * Block.SIZE + RADIUS_FACTOR;
         halfWindowX = (int) Math.floor(windowDimensions.x() / (2 * Block.SIZE)) * Block.SIZE;
+        createNightMode();
+        createSunAndSunHalo();
+        createTerrain();
+        createTree();
+        createAvatar(imageReader, inputListener, windowController);
+        setLayersCollision();
 
+    }
+
+    private void setLayersCollision(){
+        gameObjects().layers().shouldLayersCollide(UPPER_TERRAIN_LAYER, LEAF_LAYER, true);
+        gameObjects().layers().shouldLayersCollide(UPPER_TERRAIN_LAYER, Layer.DEFAULT, true);
+        gameObjects().layers().shouldLayersCollide(STUMP_LAYER, Layer.DEFAULT, true);
+    }
+
+    private void createNightMode() {
         Night.create(this.gameObjects(), Layer.FOREGROUND, windowDimensions, DAY_LENGTH);
+    }
 
+    private void createSunAndSunHalo() {
         GameObject sun = Sun.create(this.gameObjects(), Layer.BACKGROUND, windowDimensions, DAY_LENGTH);
-
         SunHalo.create(this.gameObjects(), SUN_HALO_LAYER, sun, HALO_COLOR);
+    }
 
-
-
-        terrain = new Terrain(this.gameObjects(), LOWER_TERRAIN_LAYER, windowDimensions, seed);
-        terrain.createInRange(leftRenderBorder, rightRenderBorder);
-
+    private void createTree() {
         tree = new Tree(this.gameObjects(), terrain::groundHeightAt, STUMP_LAYER, LEAF_LAYER, seed);
         tree.createInRange(leftRenderBorder, rightRenderBorder);
+    }
 
-        gameObjects().layers().shouldLayersCollide(UPPER_TERRAIN_LAYER, LEAF_LAYER, true);
+    private void createTerrain() {
+        terrain = new Terrain(this.gameObjects(), LOWER_TERRAIN_LAYER, windowDimensions, seed);
+        terrain.createInRange(leftRenderBorder, rightRenderBorder);
+    }
 
+    private void createAvatar(ImageReader imageReader, UserInputListener inputListener, WindowController windowController) {
         avatar = Avatar.create(gameObjects(),
                 Layer.DEFAULT,
                 new Vector2(windowDimensions.x() * 0.5f, terrain.groundHeightAt(windowDimensions.x() * 0.5f) - 100),
                 inputListener, imageReader);
-
-        gameObjects().layers().shouldLayersCollide(UPPER_TERRAIN_LAYER, Layer.DEFAULT, true);
-        gameObjects().layers().shouldLayersCollide(STUMP_LAYER, Layer.DEFAULT, true);
-
+        gameObjects().addGameObject(new NumericEnergyCounter(Vector2.ZERO, Vector2.ONES.mult(50),gameObjects(), avatar, Layer.BACKGROUND));
         setCamera(new Camera(avatar,
                 windowController.getWindowDimensions().mult(0.5f).add(avatar.getTopLeftCorner().mult(-1)),
                 windowController.getWindowDimensions(),
                 windowController.getWindowDimensions()));
-
     }
 
 
@@ -115,12 +128,10 @@ public class PepseGameManager extends GameManager {
         if (avatar.getCenter().x() + halfWindowX + RADIUS_FACTOR - rightRenderBorder > Block.SIZE ){
             terrain.createInRange(rightRenderBorder, rightRenderBorder + Block.SIZE);
             tree.createInRange(rightRenderBorder, rightRenderBorder + Block.SIZE);
+            tree.deleteInRange(leftRenderBorder, leftRenderBorder + Block.SIZE);
             for (GameObject obj: gameObjects()) {
                 if (obj.getCenter().x() < leftRenderBorder + Block.SIZE){
-                    gameObjects().removeGameObject(obj, LOWER_TERRAIN_LAYER);
-                    gameObjects().removeGameObject(obj, UPPER_TERRAIN_LAYER);
-                    gameObjects().removeGameObject(obj, STUMP_LAYER);
-                    gameObjects().removeGameObject(obj, LEAF_LAYER);
+                    removeObjectFromGame(obj);
                 }
             }
             rightRenderBorder += Block.SIZE;
@@ -128,17 +139,22 @@ public class PepseGameManager extends GameManager {
         } else if (leftRenderBorder - avatar.getCenter().x() + halfWindowX + RADIUS_FACTOR > Block.SIZE){
             terrain.createInRange(leftRenderBorder - Block.SIZE, leftRenderBorder);
             tree.createInRange(leftRenderBorder - Block.SIZE, leftRenderBorder);
+            tree.deleteInRange(rightRenderBorder - Block.SIZE, rightRenderBorder);
             for (GameObject obj: gameObjects()) {
                 if (obj.getCenter().x() > rightRenderBorder - Block.SIZE){
-                    gameObjects().removeGameObject(obj, LOWER_TERRAIN_LAYER);
-                    gameObjects().removeGameObject(obj, UPPER_TERRAIN_LAYER);
-                    gameObjects().removeGameObject(obj, STUMP_LAYER);
-                    gameObjects().removeGameObject(obj, LEAF_LAYER);
+                    removeObjectFromGame(obj);
                 }
             }
             rightRenderBorder -= Block.SIZE;
             leftRenderBorder -= Block.SIZE;
         }
+    }
+
+    private void removeObjectFromGame(GameObject obj) {
+        gameObjects().removeGameObject(obj, LOWER_TERRAIN_LAYER);
+        gameObjects().removeGameObject(obj, UPPER_TERRAIN_LAYER);
+//        gameObjects().removeGameObject(obj, STUMP_LAYER);
+//        gameObjects().removeGameObject(obj, LEAF_LAYER);
     }
 
     public static void main(String[] args) {

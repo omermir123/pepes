@@ -1,6 +1,7 @@
 package pepse.world;
 
 import danogl.GameObject;
+import danogl.collisions.Collision;
 import danogl.collisions.GameObjectCollection;
 import danogl.components.ScheduledTask;
 import danogl.gui.ImageReader;
@@ -39,6 +40,7 @@ public class Avatar extends GameObject {
     private static Renderable standingRenderer;
     private static AnimationRenderable walkingAnimationRenderer;
     private static AnimationRenderable flyingAnimationRenderer;
+
     private float energy;
 
     /**
@@ -62,24 +64,23 @@ public class Avatar extends GameObject {
     private static void createRenderWalkAnimation() {
         Renderable[] walking = new Renderable[NUM_OF_WALKING_IMG];
         for (int i = 0; i < walking.length; i++) {
-            walking[i] = imageReader.readImage(WALKING_ANIMATION_DIR + String.valueOf(i) +
+            walking[i] = imageReader.readImage(WALKING_ANIMATION_DIR + i +
                     END_OF_IMG_DIR, true);
         }
         walkingAnimationRenderer = new AnimationRenderable(walking, TIME_BETWEEN_CLIPS);
     }
-
     /*
     Adds to the avatar the animation of the way he flies.
      */
+
     private static void createRenderFlyAnimation() {
         Renderable[] flying = new Renderable[NUM_OF_FLYING_IMG];
         for (int i = 0; i < flying.length; i++) {
-            flying[i] = imageReader.readImage(FLYING_ANIMATION_DIR + String.valueOf(i) + END_OF_IMG_DIR,
+            flying[i] = imageReader.readImage(FLYING_ANIMATION_DIR + i + END_OF_IMG_DIR,
                     true);
         }
         flyingAnimationRenderer = new AnimationRenderable(flying, TIME_BETWEEN_CLIPS);
     }
-
     /**
      * This function creates an avatar that can travel the world and is followed by the camera. The can stand,
      * walk, jump and fly, and never reaches the end of the world.
@@ -141,5 +142,15 @@ public class Avatar extends GameObject {
                         inputListener.isKeyPressed(KeyEvent.VK_SHIFT))) {
             renderer().setRenderable(standingRenderer);
         }
+    }
+
+    public float getEnergy() {
+        return energy;
+    }
+
+    @Override
+    public void onCollisionEnter(GameObject other, Collision collision) {
+        super.onCollisionEnter(other, collision);
+        this.transform().setVelocityY(0);
     }
 }

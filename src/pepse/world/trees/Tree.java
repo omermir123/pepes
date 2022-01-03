@@ -60,7 +60,9 @@ public class Tree {
         for (int i = minX; i < maxX; i += Block.SIZE) {
             random = new Random(Objects.hash(i , seed));
             if (random.nextInt(RANDOM_BOND_TO_PLANT_TREE) == 0) {
-                buildTree(i, heightFunc.apply((float)i));
+                SingleTree newTree = new SingleTree(random, stumpLayer, leafLayer, gameObjects);
+                newTree.buildTree(i, heightFunc.apply((float)i));
+                treeMap.put(i, newTree);
             }
         }
     }

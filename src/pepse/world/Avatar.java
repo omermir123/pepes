@@ -21,7 +21,7 @@ import java.security.Key;
  */
 public class Avatar extends GameObject {
     private static final float VELOCITY_X = 400;
-    private static final float VELOCITY_Y = -300;
+    private static final float VELOCITY_Y = -400;
     private static final float GRAVITY = 500;
     private static final String STANDING_IMAGE = "assets/avatar/sneaky-toast-preview.png";
     private static final int NUM_OF_WALKING_IMG = 8;
@@ -69,7 +69,7 @@ public class Avatar extends GameObject {
         walkingAnimationRenderer = new AnimationRenderable(walking, TIME_BETWEEN_CLIPS);
     }
     /*
-    Adds to the avatar the animation of the way he flies.
+     *Adds to the avatar the animation of the way he flies.
      */
 
     private static void createRenderFlyAnimation() {
